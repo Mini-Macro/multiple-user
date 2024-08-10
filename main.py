@@ -4,7 +4,7 @@ import uvicorn
 from pydantic import BaseModel, EmailStr
 from card_function import get_values_from_db
 from card_function_optimized import get_values_from_db_optimized
-from retrive_companyid_function import fetch_user_companies
+from company_detail_using_companyid import get_values_using_company_id
 from user_company import get_company_by_email
 from typing import List
 
@@ -17,30 +17,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class UsernameRequest(BaseModel):
-    username: str
+class CompanyIDRequest(BaseModel):
+    company_id: int
 
 class CompanyResponse(BaseModel):
     company_id: int
     company_name: str
 
 @app.post("/get_values")
-async def get_values(request: UsernameRequest):
+async def get_values(request: CompanyIDRequest):
     return await get_values_from_db(request.username)
 
 @app.post("/get_values_optimized")
-async def get_values(request: UsernameRequest):
-    return await get_values_from_db_optimized(request.username)
+async def get_values(request: CompanyIDRequest):
+    return await get_values_from_db_optimized(request.company_id)
 
-@app.get("/user_companies/{email}")
-async def get_user_companies(email: str):
-    try:
-        result = await fetch_user_companies(email)
-        # return {"companies": result}
-        return result
-    except HTTPException as e:
-        raise e
-    
+@app.post("/get_values_using_companyid")
+async def get_values(request: CompanyIDRequest):
+    return await get_values_using_company_id(request.company_id)
+
 @app.get("/company/{email}", response_model=List[CompanyResponse])
 async def company_lookup(email: EmailStr):
     try:
