@@ -41,8 +41,8 @@ async def get_values(request: CompanyIDRequest):
     return await get_values_from_db_optimized(request.company_id)
 
 @app.post("/get_values_using_companyid")
-async def get_values(request: CompanyIDRequest):
-    return await get_values_using_company_id(request.company_id)
+async def get_values(request: DateRange):
+    return await get_values_using_company_id( request.start_date, request.end_date, request.company_id)
 
 @app.get("/company/{email}", response_model=List[CompanyResponse])
 async def company_lookup(email: EmailStr):
