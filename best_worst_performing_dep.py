@@ -1,11 +1,18 @@
 import asyncpg
-async def get_total_voucher_amount(company_id:int):
+from datetime import datetime
+
+async def get_total_voucher_amount(company_id:int, start_date:str, end_date:str):
     DATABASE_URL = "postgresql://postgres.catelzlfmdwiyqapheoh:FinKeepSahil@aws-0-ap-south-1.pooler.supabase.com:6543/postgres"
+
+    # Convert date strings to datetime objects
+    start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+    end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
     
     query = """
     SELECT voucher_type, SUM(amount) AS total_amount,  COUNT(*) AS voucher_count
     FROM trn_voucher
     WHERE trn_voucher.company_id = $1
+    AND trn_voucher.date >= $2 AND trn_voucher.date <= $3
     GROUP BY voucher_type;
     """
     async def fetch_data(pool, query, *args):
@@ -13,7 +20,7 @@ async def get_total_voucher_amount(company_id:int):
             return await conn.fetch(query, *args)
 
     async with asyncpg.create_pool(DATABASE_URL, statement_cache_size=0) as pool:
-            result = await fetch_data(pool, query, company_id)
+            result = await fetch_data(pool, query, company_id, start_date, end_date)
     
     if not result:
         return {

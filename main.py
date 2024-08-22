@@ -61,9 +61,9 @@ async def monthly_totals(date_range: DateRange):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/total_voucher_amount/")
-async def total_voucher_amount(request: CompanyIDRequest):
+async def total_voucher_amount(request: DateRange):
     try:
-        result = await get_total_voucher_amount(request.company_id)
+        result = await get_total_voucher_amount(request.company_id, request.start_date, request.end_date)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
