@@ -8,6 +8,8 @@ from company_detail_using_companyid import get_values_using_company_id
 from user_company import get_company_by_email
 from ipd_opd_revenue import main
 from best_worst_performing_dep import get_total_voucher_amount
+from get_all_ledgers import fetch_ledger_names
+from get_ledger_transactions import fetch_ledger_transactions
 # from ipd_opd_revenue_optimize import main
 from typing import List
 
@@ -68,5 +70,21 @@ async def total_voucher_amount(request: DateRange):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/get_all_ledgers")
+async def get_all_ledgers():
+    try:
+        result = await fetch_ledger_names()
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/get_ledger_transactions/{ledger_name}")
+async def get_ledger_transactions(ledger_name: str):
+    try:
+        result = await fetch_ledger_transactions(ledger_name)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
